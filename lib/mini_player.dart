@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
 import 'audio_player_manager.dart';
 
@@ -45,11 +47,21 @@ class MiniPlayer extends StatelessWidget {
                       if (player.imageUrl != null)
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            player.imageUrl!,
+                          child: CachedNetworkImage(
+                            imageUrl: player.imageUrl!,
                             width: 48,
                             height: 48,
                             fit: BoxFit.cover,
+                            placeholder: (context, url) => Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 48,
+                                height: 48,
+                                color: Colors.white,
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 48),
                           ),
                         ),
                       const SizedBox(width: 12),

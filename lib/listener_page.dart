@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
 import 'audio_player_manager.dart';
 
@@ -38,14 +40,37 @@ class _PodcastListenerWidgetState extends State<PodcastListenerWidget> with Widg
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (player.imageUrl != null)
-                ClipRRect(
+                Container(
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.25),
+                        blurRadius: 16,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                    shape: BoxShape.circle,
+                  ),
+                  child: ClipRRect(
                     borderRadius: BorderRadius.circular(1200),
-                    child: Image.network(
-                      player.imageUrl!,
+                    child: CachedNetworkImage(
+                      imageUrl: player.imageUrl!,
                       width: 200,
                       height: 200,
                       fit: BoxFit.cover,
-                    )),
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          width: 200,
+                          height: 200,
+                          color: Colors.white,
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 200),
+                    ),
+                  ),
+                ),
               const SizedBox(height: 20),
               Text(
                 player.title ?? '',
@@ -64,11 +89,14 @@ class _PodcastListenerWidgetState extends State<PodcastListenerWidget> with Widg
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        '${player.position != null ? _formatDuration(player.position!) : '00:00'} / ',
+                        // Show 00:00 if position is null or duration is null or zero
+                        '${(player.position == null || player.duration == null || player.duration == Duration.zero) ? '00:00' : _formatDuration(player.position!)} / ',
                         style: const TextStyle(fontSize: 14, color: Colors.black54),
                       ),
                       Text(
-                        player.duration != null ? _formatDuration(player.duration!) : '00:00',
+                        (player.duration == null || player.duration == Duration.zero)
+                            ? '00:00'
+                            : _formatDuration(player.duration!),
                         style: const TextStyle(fontSize: 14, color: Colors.black54),
                       ),
                     ],
@@ -79,9 +107,13 @@ class _PodcastListenerWidgetState extends State<PodcastListenerWidget> with Widg
                       overlayShape: SliderComponentShape.noOverlay,
                     ),
                     child: Slider(
-                      value: player.position?.inSeconds.toDouble() ?? 0,
+                      value: (player.position == null || player.duration == null || player.duration == Duration.zero)
+                          ? 0
+                          : player.position!.inSeconds.toDouble(),
                       min: 0,
-                      max: (player.duration?.inSeconds.toDouble() ?? 1),
+                      max: (player.duration == null || player.duration == Duration.zero)
+                          ? 1
+                          : player.duration!.inSeconds.toDouble(),
                       onChanged: (value) {
                         player.seek(Duration(seconds: value.toInt()));
                       },
