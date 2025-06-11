@@ -39,25 +39,19 @@ class _BookPageState extends State<BookPage> with WidgetsBindingObserver {
         'description': 'A Brief History of Humankind by Yuval Noah Harari.',
         'imageUrl': 'https://images-na.ssl-images-amazon.com/images/I/713jIoMO3UL.jpg',
       },
-      {
-        'audioUrl': 'http://daq7nasbr6dck.cloudfront.net/7habits/1.mp3',
-        'title': '7 Habits of Highly Effective People',
-        'description': 'Powerful Lessons in Personal Change by Stephen R. Covey.',
-        'imageUrl': 'http://daq7nasbr6dck.cloudfront.net/7habits/cover.jpg',
-      },
+      // {
+      //   'audioUrl': 'http://daq7nasbr6dck.cloudfront.net/7habits/1.mp3',
+      //   'title': '7 Habits of Highly Effective People',
+      //   'description': 'Powerful Lessons in Personal Change by Stephen R. Covey.',
+      //   'imageUrl': 'http://daq7nasbr6dck.cloudfront.net/7habits/cover.jpg',
+      // },
     ];
     final player = Provider.of<AudioPlayerManager>(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Books')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.62,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
+        child: ListView.builder(
           itemCount: books.length,
           itemBuilder: (context, index) {
             final book = books[index];
@@ -96,7 +90,8 @@ class _BookPageState extends State<BookPage> with WidgetsBindingObserver {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: Column(
+                  child: Row(
+                    spacing: 10,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       ClipRRect(
@@ -104,14 +99,14 @@ class _BookPageState extends State<BookPage> with WidgetsBindingObserver {
                         child: CachedNetworkImage(
                           imageUrl: book['imageUrl']!,
                           width: 100,
-                          height: 140,
+                          height: 100,
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Shimmer.fromColors(
                             baseColor: Colors.grey[300]!,
                             highlightColor: Colors.grey[100]!,
                             child: Container(
                               width: 100,
-                              height: 140,
+                              height: 100,
                               color: Colors.white,
                             ),
                           ),
@@ -119,22 +114,27 @@ class _BookPageState extends State<BookPage> with WidgetsBindingObserver {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Text(
-                        book['title']!,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              book['title']!,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              book['description']!,
+                              style: const TextStyle(fontSize: 13, color: Colors.black54),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        book['description']!,
-                        style: const TextStyle(fontSize: 13, color: Colors.black54),
-                        textAlign: TextAlign.center,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const Spacer(),
                     ],
                   ),
                 ),
